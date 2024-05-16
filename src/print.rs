@@ -30,16 +30,16 @@ pub(crate) fn wasmtime_println(text: &str) {
                 break;
             }
         }
-        TEXT_BUFFER[length] = '\n' as u8; // new-line is required for a working output
+        TEXT_BUFFER[length] = b'\n'; // new-line is required for a working output
         length += 1;
 
         IO_VECTOR.base = &mut TEXT_BUFFER[0] as *mut u8 as i32;
         IO_VECTOR.length = length as i32;
 
-        let io_vector_array = addr_of_mut!(IO_VECTOR) as *mut Iov;
+        let io_vector_array = addr_of_mut!(IO_VECTOR);
         const STANDARDD_OUTPUT: i32 = 1;
         const IO_VECTOR_ARRAY_LENGTH: i32 = 1;
-        let written_pointer = addr_of_mut!(WRITTEN) as *mut i32;
+        let written_pointer = addr_of_mut!(WRITTEN);
 
         fd_write(
             STANDARDD_OUTPUT,
@@ -57,7 +57,7 @@ macro_rules! println {
             use core::fmt::Write;
             let mut output = String::new();
             write!(&mut output, $($arg)*).unwrap();
-            crate::print::wasmtime_println(&output);
+            $crate::print::wasmtime_println(&output);
         }
     })
 }
@@ -75,7 +75,7 @@ macro_rules! panic {
         use core::fmt::Write;
         let mut output = String::from("[PANIC] ");
         write!(&mut output, $($arg)*).unwrap();
-        crate::print::wasmtime_println(&output);
+        $crate::print::wasmtime_println(&output);
         std::process::exit(1);
     })
 }
